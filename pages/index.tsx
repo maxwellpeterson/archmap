@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import styled from "styled-components"
 import ReactMapGL, { ViewportProps } from "react-map-gl"
 import MapMarker from "../components/map-marker"
+import MapPopup from "../components/map-popup"
 
 export interface Project {
   id: number
@@ -42,7 +43,7 @@ const projects: Project[] = [
       longitude: 12.583813,
     },
     name: "Cirkelbroen Bridge",
-    architects: ["Studio Olafur Eliasson"],
+    architects: ["Studio Olafur Eliasson", "1 More"],
     year: 2015,
   },
   {
@@ -52,7 +53,7 @@ const projects: Project[] = [
       longitude: 12.577687,
     },
     name: "Copenhagen Harbour Bath",
-    architects: ["Bjarke Ingels Group", "Julien de Smedt"],
+    architects: ["Bjarke Ingels Group", "Julien de Smedt", "Julien de Smedt"],
     year: 2003,
   },
 ]
@@ -85,20 +86,22 @@ export default function Home({ mapboxToken }: HomeProps) {
     minPitch: 0,
   })
 
+  const [selectedProject, setSelectedProject] = useState<Project>(null)
+
   // Taken from stackoverflow.com/a/19014495
   // Also see gist.github.com/gaearon/e7d97cdf38a2907924ea12e4ebdf3c85
   // There might be a better way to handle initial load, not sure if currently an issue
   useEffect(() => {
-    function updateSize() {
+    function updateViewportSize() {
       setViewport({
         ...viewport,
         width: window.innerWidth,
         height: window.innerHeight,
       })
     }
-    window.addEventListener("resize", updateSize)
-    updateSize()
-    return () => window.removeEventListener("resize", updateSize)
+    window.addEventListener("resize", updateViewportSize)
+    updateViewportSize()
+    return () => window.removeEventListener("resize", updateViewportSize)
   }, [])
 
   return (
@@ -109,8 +112,16 @@ export default function Home({ mapboxToken }: HomeProps) {
         onViewportChange={setViewport}
       >
         {projects.map((project) => (
-          <MapMarker key={project.id} project={project} />
+          <MapMarker
+            key={project.id}
+            project={project}
+            onClick={(event) => {
+              event.preventDefault()
+              setSelectedProject(project)
+            }}
+          />
         ))}
+        {selectedProject && <MapPopup project={selectedProject} />}
       </ReactMapGL>
     </Container>
   )

@@ -1,29 +1,25 @@
-// Taken from github.com/vercel/next.js/blob/canary/examples/with-styled-components/pages/_app.js
-
-import { createGlobalStyle, ThemeProvider } from "styled-components"
+import { createGlobalStyle } from "styled-components"
 import { normalize } from "styled-normalize"
+import "fontsource-roboto"
 
 const GlobalStyle = createGlobalStyle`
   ${normalize}
 
   * {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
   }
-`
 
-// Eventually do stuff with themes...
-const theme = {
-  colors: {
-    primary: "#0070f3",
-  },
-}
+  body {
+    font-family: Roboto;
+  }
+`
 
 const MyApp = ({ Component, pageProps }) => (
   <>
     <GlobalStyle />
-    <ThemeProvider theme={theme}>
-      <Component {...pageProps} />
-    </ThemeProvider>
+    <Component {...pageProps} />
   </>
 )
 
