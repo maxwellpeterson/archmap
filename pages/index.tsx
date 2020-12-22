@@ -43,7 +43,7 @@ const projects: Project[] = [
       longitude: 12.583813,
     },
     name: "Cirkelbroen Bridge",
-    architects: ["Studio Olafur Eliasson", "1 More"],
+    architects: ["Studio Olafur Eliasson"],
     year: 2015,
   },
   {
@@ -53,7 +53,7 @@ const projects: Project[] = [
       longitude: 12.577687,
     },
     name: "Copenhagen Harbour Bath",
-    architects: ["Bjarke Ingels Group", "Julien de Smedt", "Julien de Smedt"],
+    architects: ["Bjarke Ingels Group", "Julien de Smedt"],
     year: 2003,
   },
 ]
@@ -82,7 +82,7 @@ export default function Home({ mapboxToken }: HomeProps) {
     altitude: 0,
     maxZoom: 20,
     minZoom: 0,
-    maxPitch: 20,
+    maxPitch: 0,
     minPitch: 0,
   })
 
@@ -110,6 +110,10 @@ export default function Home({ mapboxToken }: HomeProps) {
         {...viewport}
         mapboxApiAccessToken={mapboxToken}
         onViewportChange={setViewport}
+        onClick={(event) => {
+          event.preventDefault()
+          setSelectedProject(null)
+        }}
       >
         {projects.map((project) => (
           <MapMarker
@@ -117,7 +121,11 @@ export default function Home({ mapboxToken }: HomeProps) {
             project={project}
             onClick={(event) => {
               event.preventDefault()
-              setSelectedProject(project)
+              setSelectedProject(
+                selectedProject && selectedProject.id === project.id
+                  ? null
+                  : project
+              )
             }}
           />
         ))}

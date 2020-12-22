@@ -1,5 +1,5 @@
 import Image from "next/image"
-import React, { useCallback, useState } from "react"
+import React from "react"
 import { Marker } from "react-map-gl"
 import styled from "styled-components"
 import { Project } from "../pages"
@@ -7,17 +7,17 @@ import { Project } from "../pages"
 const POPUP_WIDTH = 275
 const POPUP_OFFSET = POPUP_WIDTH + 40
 
-const TipContainer = styled.div`
+const PopupContainer = styled.div`
   display: grid;
   justify-items: center;
 `
 
-const PopupContainer = styled.div`
+const ContentContainer = styled.div`
   width: ${POPUP_WIDTH}px;
   border: 2px solid black;
 `
 
-// Still not sure why this needs to be position: relative
+// Still not sure why this needs to be position relative
 const ImageContainer = styled.div`
   position: relative;
   width: 100%;
@@ -33,25 +33,61 @@ const TextContainer = styled.div`
   grid-gap: 5px;
 `
 
-const Name = styled.p`
-  font-size: 20px;
+const Line = styled.p`
+  white-space: nowrap;
+  overflow: hidden;
 `
 
-const Tip = styled.div`
+const Name = styled(Line)`
+  font-size: 20px;
+  text-overflow: ellipsis;
+`
+
+const TipContainer = styled.div`
+  display: flex;
+`
+
+const TipBottom = styled.div`
   width: 0;
   height: 0;
   border-top: 25px solid black;
   border-left: 25px solid transparent;
   border-right: 25px solid transparent;
+  position: absolute;
 `
 
-const TipMask = styled(Tip)`
-  position: relative;
-  top: -27px;
+const TipTop = styled(TipBottom)`
   border-top: 25px solid white;
+  position: relative;
+  top: -2px;
 `
 
-const Detail = styled.p``
+const formatArchitects = (architects: string[]): string => {
+  // Maximum number of characters that can fit on one line of popup
+  // Depends on font size and character composition
+  const MAX_LINE_LENGTH = 35
+
+  // Truncate given string to given length, including trailing ellipsis
+  const formatName = (name: string, length: number): string =>
+    name.length <= length ? name : name.slice(0, length - 3) + "..."
+
+  // Architect-less projects should be extremely rare
+  if (architects.length === 0) {
+    return "No Architects"
+  }
+
+  // For projects with one architect, show name of that architect
+  if (architects.length === 1) {
+    return formatName(architects[0], MAX_LINE_LENGTH)
+  }
+
+  // For projects with multiple architects, show name of first architect
+  // and count of remaining architects
+  return (
+    formatName(architects[0], MAX_LINE_LENGTH - 10) +
+    ` + ${architects.length - 1} More`
+  )
+}
 
 interface MapPopupProps {
   project: Project
@@ -64,20 +100,22 @@ const MapPopup = ({ project }: MapPopupProps) => (
     offsetLeft={POPUP_WIDTH / -2}
     offsetTop={-POPUP_OFFSET}
   >
-    <TipContainer>
-      <PopupContainer>
+    <PopupContainer>
+      <ContentContainer>
         <ImageContainer>
           <Image src={`/${project.id}.jpg`} layout="fill" objectFit="cover" />
         </ImageContainer>
         <TextContainer>
           <Name>{project.name}</Name>
-          <Detail>{project.architects.join(" + ")}</Detail>
-          <Detail>{project.year}</Detail>
+          <Line>{formatArchitects(project.architects)}</Line>
+          <Line>{project.year}</Line>
         </TextContainer>
-      </PopupContainer>
-      <Tip />
-      <TipMask />
-    </TipContainer>
+      </ContentContainer>
+      <TipContainer>
+        <TipBottom />
+        <TipTop />
+      </TipContainer>
+    </PopupContainer>
   </Marker>
 )
 
