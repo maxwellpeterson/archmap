@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, ReactElement } from "react"
 import styled from "styled-components"
 import ReactMapGL, { ViewportProps } from "react-map-gl"
-import MapMarker from "../components/map-marker"
-import MapPopup from "../components/map-popup"
+import MapMarker from "../components/MapMarker"
+import MapPopup from "../components/MapPopup"
 
 export interface Project {
   id: number
@@ -58,51 +58,69 @@ const projects: Project[] = [
   },
 ]
 
-// Maybe try to match background color to color of loading map tiles
-// to visually smooth initial load
+// Intial region currently near center of Copenhagen.
+// Note that we are disallowing pitch change.
+const INITIAL_VIEWPORT: ViewportProps = {
+  latitude: 55.672125,
+  longitude: 12.580146,
+  width: 0,
+  height: 0,
+  zoom: 15,
+  bearing: 0,
+  pitch: 0,
+  altitude: 0,
+  maxZoom: 20,
+  minZoom: 0,
+  maxPitch: 0,
+  minPitch: 0,
+}
+
+// Maybe set background color in meta theme for faster initial load...
 const Container = styled.div`
   width: 100vw;
   height: 100vh;
+  background-color: #eff0f0;
 `
 
 interface HomeProps {
   mapboxToken: string
 }
 
-export default function Home({ mapboxToken }: HomeProps) {
-  // Maybe put default values somewhere else...
-  const [viewport, setViewport] = useState<ViewportProps>({
-    latitude: 55.672125,
-    longitude: 12.580146,
-    width: 0,
-    height: 0,
-    zoom: 15,
-    bearing: 0,
-    pitch: 0,
-    altitude: 0,
-    maxZoom: 20,
-    minZoom: 0,
-    maxPitch: 0,
-    minPitch: 0,
-  })
+export default function Home({ mapboxToken }: HomeProps): ReactElement {
+  // Keeps track of the current map viewport. Required for interactivity.
+  const [viewport, setViewport] = useState<ViewportProps>(INITIAL_VIEWPORT)
 
-  const [selectedProject, setSelectedProject] = useState<Project>(null)
+  // For fetching data see:
+  // https://visgl.github.io/react-map-gl/docs/api-reference/web-mercator-viewport#getboundsoptions
 
-  // Taken from stackoverflow.com/a/19014495
+  // Keeps track of the project whose popup is currently visible, if there is one.
+  const [activeProject, setActiveProject] = useState<Project>(null)
+
+  // For resizing the map when the window in resized. Taken from stackoverflow.com/a/19014495
   // Also see gist.github.com/gaearon/e7d97cdf38a2907924ea12e4ebdf3c85
-  // There might be a better way to handle initial load, not sure if currently an issue
   useEffect(() => {
-    function updateViewportSize() {
+    const setViewportSize = (): void =>
       setViewport({
         ...viewport,
         width: window.innerWidth,
         height: window.innerHeight,
       })
-    }
-    window.addEventListener("resize", updateViewportSize)
-    updateViewportSize()
-    return () => window.removeEventListener("resize", updateViewportSize)
+    window.addEventListener("resize", setViewportSize)
+    setViewportSize()
+    return () => window.removeEventListener("resize", setViewportSize)
   }, [])
+
+  // Handles clicks on the map. Clicking on the map closes the active popup if there is one. Note
+  // that the popup will still remain active across pan actions (click and drag). Also note that
+  // passing this to ReactMapGL as onNativeClick instead of onClick results in faster click response.
+  const onMapClick = (): void => setActiveProject(null)
+
+  // Handles clicks on map markers. If the marker for the active project is clicked a second time,
+  // the popup will close. Otherwise, clicking on a marker opens a popup for that project.
+  const onMarkerClick = (project: Project): void =>
+    setActiveProject(
+      activeProject && activeProject.id === project.id ? null : project
+    )
 
   return (
     <Container>
@@ -110,26 +128,18 @@ export default function Home({ mapboxToken }: HomeProps) {
         {...viewport}
         mapboxApiAccessToken={mapboxToken}
         onViewportChange={setViewport}
-        onClick={(event) => {
-          event.preventDefault()
-          setSelectedProject(null)
-        }}
+        onNativeClick={onMapClick}
       >
-        {projects.map((project) => (
-          <MapMarker
-            key={project.id}
-            project={project}
-            onClick={(event) => {
-              event.preventDefault()
-              setSelectedProject(
-                selectedProject && selectedProject.id === project.id
-                  ? null
-                  : project
-              )
-            }}
-          />
-        ))}
-        {selectedProject && <MapPopup project={selectedProject} />}
+        {projects.map(
+          (project: Project): ReactElement => (
+            <MapMarker
+              key={project.id}
+              project={project}
+              onClick={onMarkerClick}
+            />
+          )
+        )}
+        {activeProject && <MapPopup project={activeProject} />}
       </ReactMapGL>
     </Container>
   )

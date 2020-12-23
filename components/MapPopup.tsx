@@ -1,11 +1,11 @@
 import Image from "next/image"
-import React from "react"
+import React, { ReactElement } from "react"
 import { Marker } from "react-map-gl"
 import styled from "styled-components"
 import { Project } from "../pages"
 
-const POPUP_WIDTH = 275
-const POPUP_OFFSET = POPUP_WIDTH + 40
+const POPUP_WIDTH: number = 275
+const POPUP_OFFSET: number = POPUP_WIDTH + 40
 
 const PopupContainer = styled.div`
   display: grid;
@@ -17,7 +17,7 @@ const ContentContainer = styled.div`
   border: 2px solid black;
 `
 
-// Still not sure why this needs to be position relative
+// Not sure why this needs to be position relative
 const ImageContainer = styled.div`
   position: relative;
   width: 100%;
@@ -65,7 +65,7 @@ const TipTop = styled(TipBottom)`
 const formatArchitects = (architects: string[]): string => {
   // Maximum number of characters that can fit on one line of popup
   // Depends on font size and character composition
-  const MAX_LINE_LENGTH = 35
+  const MAX_LINE_LENGTH: number = 35
 
   // Truncate given string to given length, including trailing ellipsis
   const formatName = (name: string, length: number): string =>
@@ -93,7 +93,7 @@ interface MapPopupProps {
   project: Project
 }
 
-const MapPopup = ({ project }: MapPopupProps) => (
+const MapPopup = ({ project }: MapPopupProps): ReactElement => (
   <Marker
     latitude={project.location.latitude}
     longitude={project.location.longitude}
