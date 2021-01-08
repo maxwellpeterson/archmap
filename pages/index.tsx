@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ReactElement } from "react"
+import React, { useState, useEffect, useMemo, ReactElement } from "react"
 import styled from "styled-components"
 import ReactMapGL, { ViewportProps } from "react-map-gl"
 import MapMarker from "../components/MapMarker"
@@ -58,6 +58,13 @@ const projects: Project[] = [
   },
 ]
 
+// Maybe set background color in meta theme for faster initial load...
+const Container = styled.div`
+  width: 100vw;
+  height: 100vh;
+  background-color: #eff0f0;
+`
+
 // Intial region currently near center of Copenhagen.
 // Note that we are disallowing pitch change.
 const INITIAL_VIEWPORT: ViewportProps = {
@@ -69,18 +76,11 @@ const INITIAL_VIEWPORT: ViewportProps = {
   bearing: 0,
   pitch: 0,
   altitude: 0,
-  maxZoom: 20,
-  minZoom: 0,
+  maxZoom: 16,
+  minZoom: 1,
   maxPitch: 0,
   minPitch: 0,
 }
-
-// Maybe set background color in meta theme for faster initial load...
-const Container = styled.div`
-  width: 100vw;
-  height: 100vh;
-  background-color: #eff0f0;
-`
 
 interface HomeProps {
   mapboxToken: string
@@ -95,6 +95,15 @@ export default function Home({ mapboxToken }: HomeProps): ReactElement {
 
   // Keeps track of the project whose popup is currently visible, if there is one.
   const [activeProject, setActiveProject] = useState<Project>(null)
+
+  // Keeps track of the current zoom value scaled to the range [0, 1] where 0 is minimum zoom and 1 is
+  // maximum zoom. Redundant, but a useful value to have on hand.
+  const zoomFactor = useMemo<number>(
+    () =>
+      (viewport.zoom - viewport.minZoom) /
+      (viewport.maxZoom - viewport.minZoom),
+    [viewport.zoom]
+  )
 
   // For resizing the map when the window in resized. Taken from stackoverflow.com/a/19014495
   // Also see gist.github.com/gaearon/e7d97cdf38a2907924ea12e4ebdf3c85
@@ -136,6 +145,7 @@ export default function Home({ mapboxToken }: HomeProps): ReactElement {
               key={project.id}
               project={project}
               onClick={onMarkerClick}
+              zoomFactor={zoomFactor}
             />
           )
         )}
