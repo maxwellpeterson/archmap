@@ -1,38 +1,35 @@
 import React, { ReactElement } from "react"
 import { Marker } from "react-map-gl"
 import styled from "styled-components"
-import { Project } from "../types"
+import { Position } from "../types"
 
-const MarkerIcon = styled.div<{ markerRadius: number }>`
-  width: ${(props) => 2 * props.markerRadius}px;
-  height: ${(props) => 2 * props.markerRadius}px;
-  border-radius: ${(props) => props.markerRadius}px;
+const MarkerIcon = styled.div<{ radius: number }>`
+  width: ${(props) => 2 * props.radius}px;
+  height: ${(props) => 2 * props.radius}px;
+  border-radius: ${(props) => props.radius}px;
   background-color: #be1e2d;
   cursor: pointer;
 `
 
 interface MapMarkerProps {
-  project: Project
-  onClick: (project: Project) => void
-  markerRadius: number
+  position: Position
+  radius: number
+  onClick: () => void
 }
 
 const MapMarker = ({
-  project,
+  position,
+  radius,
   onClick,
-  markerRadius,
 }: MapMarkerProps): ReactElement => {
   return (
     <Marker
-      latitude={project.location.latitude}
-      longitude={project.location.longitude}
-      offsetTop={-markerRadius}
-      offsetLeft={-markerRadius}
+      latitude={position.latitude}
+      longitude={position.longitude}
+      offsetTop={-radius}
+      offsetLeft={-radius}
     >
-      <MarkerIcon
-        markerRadius={markerRadius}
-        onClick={() => onClick(project)}
-      />
+      <MarkerIcon radius={radius} onClick={onClick} />
     </Marker>
   )
 }

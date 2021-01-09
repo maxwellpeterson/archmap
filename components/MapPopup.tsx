@@ -102,8 +102,8 @@ interface MapPopupProps {
 
 const MapPopup = ({ project, markerRadius }: MapPopupProps): ReactElement => (
   <Marker
-    latitude={project.location.latitude}
-    longitude={project.location.longitude}
+    latitude={project.position.latitude}
+    longitude={project.position.longitude}
     offsetLeft={-(POPUP_WIDTH / 2)}
     offsetTop={-(POPUP_HEIGHT + 1.5 * markerRadius)}
   >

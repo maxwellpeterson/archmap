@@ -15,10 +15,15 @@ const Container = styled.div`
   background-color: #eff0f0;
 `
 
+const ErrorMessage = styled.p`
+  font-size: 32px;
+`
+
 const MIN_MARKER_RADIUS: number = 3
 const MAX_MARKER_RADIUS: number = 12
-
 const MIN_ZOOM_FOR_CLICK: number = 10
+const NO_MAPBOX_TOKEN_MESSAGE: string =
+  "Hmm. Looks like you’re missing a Mapbox token."
 
 // Intial region currently near center of Copenhagen.
 // Note that we are disallowing pitch change.
@@ -37,8 +42,6 @@ const INITIAL_VIEWPORT: ViewportProps = {
   minPitch: 0,
 }
 
-// Will need to make sure Mapbox token is checked, and error message is
-// displayed if it is missing...
 interface HomePageProps {
   mapboxToken: string | undefined
 }
@@ -52,6 +55,12 @@ export default function HomePage({ mapboxToken }: HomePageProps): ReactElement {
 
   // Keeps track of the project whose popup is currently visible, if there is one.
   const [activeProject, setActiveProject] = useState<Project | null>(null)
+
+  // Keeps track of the current error message, if any. If there is an error message, the map
+  // is not rendered and only the message is displayed.
+  const [errorMessage, setErrorMessage] = useState<string | null>(
+    mapboxToken ? null : NO_MAPBOX_TOKEN_MESSAGE
+  )
 
   // The current zoom value scaled to the range [0, 1] where 0 is minimum zoom and 1 is
   // maximum zoom. A useful intermediate value.
@@ -78,7 +87,7 @@ export default function HomePage({ mapboxToken }: HomePageProps): ReactElement {
     return () => window.removeEventListener("resize", setViewportSize)
   }, [])
 
-  // Handles viewport changes, and closes active popup if the user has zoomed out beyond a certain point
+  // Handles viewport changes, and closes active popup if the user has zoomed out too far
   const onViewportChange = (viewport: ViewportProps): void => {
     setViewport(viewport)
     if (viewport.zoom < MIN_ZOOM_FOR_CLICK) {
@@ -92,7 +101,8 @@ export default function HomePage({ mapboxToken }: HomePageProps): ReactElement {
   const onMapClick = (): void => setActiveProject(null)
 
   // Handles clicks on map markers. If the marker for the active project is clicked a second time,
-  // the popup will close. Otherwise, clicking on a marker opens a popup for that project.
+  // the popup will close. Otherwise, clicking on a marker opens a popup for that project. If the
+  // map is too far zoomed out when the marker is clicked, no popup will be opened.
   const onMarkerClick = (project: Project): void => {
     // Eventually smooth zoom in on project if map too zoomed out
     if (viewport.zoom >= MIN_ZOOM_FOR_CLICK) {
@@ -104,26 +114,30 @@ export default function HomePage({ mapboxToken }: HomePageProps): ReactElement {
 
   return (
     <Container>
-      <ReactMapGL
-        {...viewport}
-        mapboxApiAccessToken={mapboxToken}
-        onViewportChange={onViewportChange}
-        onNativeClick={onMapClick}
-      >
-        {projects.map(
-          (project: Project): ReactElement => (
-            <MapMarker
-              key={project.id}
-              project={project}
-              onClick={onMarkerClick}
-              markerRadius={markerRadius}
-            />
-          )
-        )}
-        {activeProject && (
-          <MapPopup project={activeProject} markerRadius={markerRadius} />
-        )}
-      </ReactMapGL>
+      {errorMessage ? (
+        <ErrorMessage>{errorMessage}</ErrorMessage>
+      ) : (
+        <ReactMapGL
+          {...viewport}
+          mapboxApiAccessToken={mapboxToken}
+          onViewportChange={onViewportChange}
+          onNativeClick={onMapClick}
+        >
+          {projects.map(
+            (project: Project): ReactElement => (
+              <MapMarker
+                key={project.id}
+                position={project.position}
+                radius={markerRadius}
+                onClick={() => onMarkerClick(project)}
+              />
+            )
+          )}
+          {activeProject && (
+            <MapPopup project={activeProject} markerRadius={markerRadius} />
+          )}
+        </ReactMapGL>
+      )}
     </Container>
   )
 }

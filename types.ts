@@ -1,9 +1,11 @@
+export interface Position {
+  latitude: number
+  longitude: number
+}
+
 export interface Project {
   id: number
-  location: {
-    latitude: number
-    longitude: number
-  }
+  position: Position
   name: string
   architects: string[]
   year: number

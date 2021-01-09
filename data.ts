@@ -3,7 +3,7 @@ import { Project } from "./types"
 export const projects: Project[] = [
   {
     id: 20745,
-    location: {
+    position: {
       latitude: 55.672062,
       longitude: 12.578563,
     },
@@ -13,7 +13,7 @@ export const projects: Project[] = [
   },
   {
     id: 10155,
-    location: {
+    position: {
       latitude: 55.673317,
       longitude: 12.582735,
     },
@@ -23,7 +23,7 @@ export const projects: Project[] = [
   },
   {
     id: 37094,
-    location: {
+    position: {
       latitude: 55.672438,
       longitude: 12.583813,
     },
@@ -33,7 +33,7 @@ export const projects: Project[] = [
   },
   {
     id: 5022,
-    location: {
+    position: {
       latitude: 55.668688,
       longitude: 12.577687,
     },
