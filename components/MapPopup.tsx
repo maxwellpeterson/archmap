@@ -5,13 +5,15 @@ import styled from "styled-components"
 import { Project } from "../pages"
 
 const POPUP_WIDTH: number = 275
-const POPUP_OFFSET: number = POPUP_WIDTH + 40
+// Warning: This height is observed, and may change with styling
+const POPUP_HEIGHT: number = 295
 
+// Popup = Content + Tip
 const PopupContainer = styled.div`
   display: grid;
   justify-items: center;
 `
-
+// Content = Image + Text
 const ContentContainer = styled.div`
   width: ${POPUP_WIDTH}px;
   border: 2px solid black;
@@ -22,6 +24,7 @@ const ImageContainer = styled.div`
   position: relative;
   width: 100%;
   height: 175px;
+  background-color: #eff0f0;
 `
 
 const TextContainer = styled.div`
@@ -47,7 +50,7 @@ const TipContainer = styled.div`
   display: flex;
 `
 
-const TipBottom = styled.div`
+const TipBorder = styled.div`
   width: 0;
   height: 0;
   border-top: 25px solid black;
@@ -56,12 +59,13 @@ const TipBottom = styled.div`
   position: absolute;
 `
 
-const TipTop = styled(TipBottom)`
+const TipFill = styled(TipBorder)`
   border-top: 25px solid white;
   position: relative;
   top: -2px;
 `
 
+// Generates the one line text description for a given list of project architects
 const formatArchitects = (architects: string[]): string => {
   // Maximum number of characters that can fit on one line of popup
   // Depends on font size and character composition
@@ -91,14 +95,15 @@ const formatArchitects = (architects: string[]): string => {
 
 interface MapPopupProps {
   project: Project
+  markerRadius: number
 }
 
-const MapPopup = ({ project }: MapPopupProps): ReactElement => (
+const MapPopup = ({ project, markerRadius }: MapPopupProps): ReactElement => (
   <Marker
     latitude={project.location.latitude}
     longitude={project.location.longitude}
-    offsetLeft={POPUP_WIDTH / -2}
-    offsetTop={-POPUP_OFFSET}
+    offsetLeft={-(POPUP_WIDTH / 2)}
+    offsetTop={-(POPUP_HEIGHT + 1.5 * markerRadius)}
   >
     <PopupContainer>
       <ContentContainer>
@@ -112,8 +117,8 @@ const MapPopup = ({ project }: MapPopupProps): ReactElement => (
         </TextContainer>
       </ContentContainer>
       <TipContainer>
-        <TipBottom />
-        <TipTop />
+        <TipBorder />
+        <TipFill />
       </TipContainer>
     </PopupContainer>
   </Marker>

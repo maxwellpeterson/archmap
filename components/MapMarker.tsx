@@ -7,28 +7,21 @@ const MarkerIcon = styled.div<{ markerRadius: number }>`
   width: ${(props) => 2 * props.markerRadius}px;
   height: ${(props) => 2 * props.markerRadius}px;
   border-radius: ${(props) => props.markerRadius}px;
-  background-color: red;
+  background-color: #be1e2d;
+  cursor: pointer;
 `
-
-const MIN_MARKER_RADIUS = 3
-const MAX_MARKER_RADIUS = 12
 
 interface MapMarkerProps {
   project: Project
   onClick: (project: Project) => void
-  zoomFactor: number
+  markerRadius: number
 }
 
 const MapMarker = ({
   project,
   onClick,
-  zoomFactor,
+  markerRadius,
 }: MapMarkerProps): ReactElement => {
-  // Apply poly scaling to zoomFactor in order to slow down marker growth
-  // during middle stages of zoom (compare x, x^2, and x^3 over the interval [0, 1])
-  const markerRadius =
-    MIN_MARKER_RADIUS +
-    (MAX_MARKER_RADIUS - MIN_MARKER_RADIUS) * zoomFactor ** 3
   return (
     <Marker
       latitude={project.location.latitude}
