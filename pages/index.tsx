@@ -1,62 +1,9 @@
-import React, { useState, useEffect, useMemo, ReactElement } from "react"
+import React, { useState, useEffect, ReactElement } from "react"
 import styled from "styled-components"
 import ReactMapGL, { ViewportProps } from "react-map-gl"
-import MapMarker from "../components/MapMarker"
-import MapPopup from "../components/MapPopup"
-
-export interface Project {
-  id: number
-  location: {
-    latitude: number
-    longitude: number
-  }
-  name: string
-  architects: string[]
-  year: number
-}
-
-const projects: Project[] = [
-  {
-    id: 20745,
-    location: {
-      latitude: 55.672062,
-      longitude: 12.578563,
-    },
-    name: "BLOX",
-    architects: ["OMA / Ellen van Loon"],
-    year: 2018,
-  },
-  {
-    id: 10155,
-    location: {
-      latitude: 55.673317,
-      longitude: 12.582735,
-    },
-    name: "The Royal Library",
-    architects: ["Schmidt Hammer Lassen"],
-    year: 1999,
-  },
-  {
-    id: 37094,
-    location: {
-      latitude: 55.672438,
-      longitude: 12.583813,
-    },
-    name: "Cirkelbroen Bridge",
-    architects: ["Studio Olafur Eliasson"],
-    year: 2015,
-  },
-  {
-    id: 5022,
-    location: {
-      latitude: 55.668688,
-      longitude: 12.577687,
-    },
-    name: "Copenhagen Harbour Bath",
-    architects: ["Bjarke Ingels Group", "Julien de Smedt"],
-    year: 2003,
-  },
-]
+import { MapMarker, MapPopup } from "../components"
+import { Project } from "../types"
+import { projects } from "../data"
 
 // Maybe set background color in meta theme for faster initial load...
 const Container = styled.div`
@@ -87,11 +34,11 @@ const INITIAL_VIEWPORT: ViewportProps = {
   minPitch: 0,
 }
 
-interface HomeProps {
+interface HomePageProps {
   mapboxToken: string
 }
 
-export default function Home({ mapboxToken }: HomeProps): ReactElement {
+export default function HomePage({ mapboxToken }: HomePageProps): ReactElement {
   // Keeps track of the current map viewport. Required for interactivity.
   const [viewport, setViewport] = useState<ViewportProps>(INITIAL_VIEWPORT)
 
@@ -177,7 +124,7 @@ export default function Home({ mapboxToken }: HomeProps): ReactElement {
 }
 
 // Not sure this is the best way to handle the mapbox key...
-export async function getStaticProps(): Promise<{ props: HomeProps }> {
+export async function getStaticProps(): Promise<{ props: HomePageProps }> {
   return {
     props: { mapboxToken: process.env.MAPBOX_TOKEN },
   }

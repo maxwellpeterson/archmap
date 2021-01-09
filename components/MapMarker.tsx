@@ -1,7 +1,7 @@
 import React, { ReactElement } from "react"
 import { Marker } from "react-map-gl"
 import styled from "styled-components"
-import { Project } from "../pages"
+import { Project } from "../types"
 
 const MarkerIcon = styled.div<{ markerRadius: number }>`
   width: ${(props) => 2 * props.markerRadius}px;

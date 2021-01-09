@@ -1,8 +1,9 @@
 import Image from "next/image"
+import Link from "next/link"
 import React, { ReactElement } from "react"
 import { Marker } from "react-map-gl"
 import styled from "styled-components"
-import { Project } from "../pages"
+import { Project } from "../types"
 
 const POPUP_WIDTH: number = 275
 // Warning: This height is observed, and may change with styling
@@ -25,6 +26,7 @@ const ImageContainer = styled.div`
   width: 100%;
   height: 175px;
   background-color: #eff0f0;
+  cursor: pointer;
 `
 
 const TextContainer = styled.div`
@@ -107,9 +109,11 @@ const MapPopup = ({ project, markerRadius }: MapPopupProps): ReactElement => (
   >
     <PopupContainer>
       <ContentContainer>
-        <ImageContainer>
-          <Image src={`/${project.id}.jpg`} layout="fill" objectFit="cover" />
-        </ImageContainer>
+        <Link href={`/project/${encodeURIComponent(project.id.toString())}`}>
+          <ImageContainer>
+            <Image src={`/${project.id}.jpg`} layout="fill" objectFit="cover" />
+          </ImageContainer>
+        </Link>
         <TextContainer>
           <Name>{project.name}</Name>
           <Line>{formatArchitects(project.architects)}</Line>
