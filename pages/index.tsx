@@ -9,6 +9,9 @@ import { projects } from "../data"
 const Container = styled.div`
   width: 100vw;
   height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background-color: #eff0f0;
 `
 
@@ -34,8 +37,10 @@ const INITIAL_VIEWPORT: ViewportProps = {
   minPitch: 0,
 }
 
+// Will need to make sure Mapbox token is checked, and error message is
+// displayed if it is missing...
 interface HomePageProps {
-  mapboxToken: string
+  mapboxToken: string | undefined
 }
 
 export default function HomePage({ mapboxToken }: HomePageProps): ReactElement {
@@ -46,7 +51,7 @@ export default function HomePage({ mapboxToken }: HomePageProps): ReactElement {
   // https://visgl.github.io/react-map-gl/docs/api-reference/web-mercator-viewport#getboundsoptions
 
   // Keeps track of the project whose popup is currently visible, if there is one.
-  const [activeProject, setActiveProject] = useState<Project>(null)
+  const [activeProject, setActiveProject] = useState<Project | null>(null)
 
   // The current zoom value scaled to the range [0, 1] where 0 is minimum zoom and 1 is
   // maximum zoom. A useful intermediate value.
