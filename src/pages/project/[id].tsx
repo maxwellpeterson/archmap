@@ -1,7 +1,9 @@
 import { GetStaticPaths, GetStaticProps } from "next"
+import Image from "next/image"
 import React, { ReactElement } from "react"
 import { Project } from "../../types"
 import { projects } from "../../data"
+import styles from "./[id].module.css"
 
 interface ProjectPageProps {
   project: Project
@@ -10,7 +12,19 @@ interface ProjectPageProps {
 export default function ProjectPage({
   project,
 }: ProjectPageProps): ReactElement {
-  return <h1>{project.name}</h1>
+  return (
+    <div className={styles.pageContainer}>
+      <div className={styles.imageContainer}>
+        <Image
+          src={`/${project.id}.jpg`}
+          layout="fill"
+          objectFit="cover"
+          className={styles.image}
+        />
+      </div>
+      <h1>{project.name}</h1>
+    </div>
+  )
 }
 
 export const getStaticPaths: GetStaticPaths = async () => ({
@@ -25,8 +39,8 @@ export const getStaticPaths: GetStaticPaths = async () => ({
 // Need to figure out how to handle 404 redirect for projects that don't exist...
 export const getStaticProps: GetStaticProps = async ({ params }) => ({
   props: {
-    project: projects.filter(
+    project: projects.find(
       (project: Project) => params && project.id.toString() === params.id
-    )[0],
+    ),
   },
 })

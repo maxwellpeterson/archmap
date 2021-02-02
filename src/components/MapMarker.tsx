@@ -34,4 +34,4 @@ const MapMarker = ({
   )
 }
 
-export default MapMarker
+export { MapMarker }

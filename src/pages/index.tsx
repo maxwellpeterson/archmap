@@ -1,3 +1,4 @@
+import { GetStaticProps } from "next"
 import React, { useState, useEffect, ReactElement } from "react"
 import styled from "styled-components"
 import ReactMapGL, { ViewportProps } from "react-map-gl"
@@ -46,7 +47,7 @@ interface HomePageProps {
   mapboxToken: string | undefined
 }
 
-export default function HomePage({ mapboxToken }: HomePageProps): ReactElement {
+const HomePage = ({ mapboxToken }: HomePageProps): ReactElement => {
   // Keeps track of the current map viewport. Required for interactivity.
   const [viewport, setViewport] = useState<ViewportProps>(INITIAL_VIEWPORT)
 
@@ -143,8 +144,8 @@ export default function HomePage({ mapboxToken }: HomePageProps): ReactElement {
 }
 
 // Not sure this is the best way to handle the mapbox key...
-export async function getStaticProps(): Promise<{ props: HomePageProps }> {
-  return {
-    props: { mapboxToken: process.env.MAPBOX_TOKEN },
-  }
-}
+const getStaticProps: GetStaticProps = async () => ({
+  props: { mapboxToken: process.env.MAPBOX_TOKEN },
+})
+
+export { HomePage as default, getStaticProps }

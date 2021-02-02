@@ -75,7 +75,7 @@ const formatArchitects = (architects: string[]): string => {
 
   // Truncate given string to given length, including trailing ellipsis
   const formatName = (name: string, length: number): string =>
-    name.length <= length ? name : name.slice(0, length - 3) + "..."
+    name.length <= length ? name : `${name.slice(0, length - 3)}...`
 
   // Architect-less projects should be extremely rare
   if (architects.length === 0) {
@@ -89,10 +89,8 @@ const formatArchitects = (architects: string[]): string => {
 
   // For projects with multiple architects, show name of first architect
   // and count of remaining architects
-  return (
-    formatName(architects[0], MAX_LINE_LENGTH - 10) +
-    ` + ${architects.length - 1} More`
-  )
+  const firstArchitect: string = formatName(architects[0], MAX_LINE_LENGTH - 10)
+  return `${firstArchitect} + ${architects.length - 1} More`
 }
 
 interface MapPopupProps {
@@ -128,4 +126,4 @@ const MapPopup = ({ project, markerRadius }: MapPopupProps): ReactElement => (
   </Marker>
 )
 
-export default MapPopup
+export { MapPopup }

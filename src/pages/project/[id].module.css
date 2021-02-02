@@ -1,0 +1,9 @@
+.pageContainer {
+  display: grid;
+  grid: auto / 2fr 1fr;
+  gap: 25px;
+}
+
+.imageContainer {
+  position: relative;
+}
