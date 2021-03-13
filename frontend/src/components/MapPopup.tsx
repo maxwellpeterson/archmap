@@ -9,15 +9,10 @@ const POPUP_WIDTH: number = 275
 // Warning: This height is observed, and may change with styling
 const POPUP_HEIGHT: number = 295
 
-// Popup = Content + Tip
 const PopupContainer = styled.div`
+  width: ${POPUP_WIDTH}px;
   display: grid;
   justify-items: center;
-`
-// Content = Image + Text
-const ContentContainer = styled.div`
-  width: ${POPUP_WIDTH}px;
-  border: 2px solid black;
 `
 
 // Not sure why this needs to be position relative
@@ -26,13 +21,15 @@ const ImageContainer = styled.div`
   width: 100%;
   height: 175px;
   background-color: #eff0f0;
+  border: 2px solid black;
   cursor: pointer;
 `
 
 const TextContainer = styled.div`
   width: 100%;
   padding: 10px;
-  border-top: 2px solid black;
+  border: 2px solid black;
+  border-top: 0px;
   background-color: white;
   display: grid;
   grid-gap: 5px;
@@ -48,17 +45,12 @@ const Name = styled(Line)`
   text-overflow: ellipsis;
 `
 
-const TipContainer = styled.div`
-  display: flex;
-`
-
 const TipBorder = styled.div`
-  width: 0;
-  height: 0;
   border-top: 25px solid black;
   border-left: 25px solid transparent;
   border-right: 25px solid transparent;
   position: absolute;
+  bottom: 0px;
 `
 
 const TipFill = styled(TipBorder)`
@@ -106,22 +98,18 @@ const MapPopup = ({ project, markerRadius }: MapPopupProps): ReactElement => (
     offsetTop={-(POPUP_HEIGHT + 1.5 * markerRadius)}
   >
     <PopupContainer>
-      <ContentContainer>
-        <Link href={`/project/${encodeURIComponent(project.id.toString())}`}>
-          <ImageContainer>
-            <Image src={`/${project.id}.jpg`} layout="fill" objectFit="cover" />
-          </ImageContainer>
-        </Link>
-        <TextContainer>
-          <Name>{project.name}</Name>
-          <Line>{formatArchitects(project.architects)}</Line>
-          <Line>{project.year}</Line>
-        </TextContainer>
-      </ContentContainer>
-      <TipContainer>
-        <TipBorder />
-        <TipFill />
-      </TipContainer>
+      <Link href={`/project/${encodeURIComponent(project.id.toString())}`}>
+        <ImageContainer>
+          <Image src={`/${project.id}.jpg`} layout="fill" objectFit="cover" />
+        </ImageContainer>
+      </Link>
+      <TextContainer>
+        <Name>{project.name}</Name>
+        <Line>{formatArchitects(project.architects)}</Line>
+        <Line>{project.year}</Line>
+      </TextContainer>
+      <TipBorder />
+      <TipFill />
     </PopupContainer>
   </Marker>
 )
