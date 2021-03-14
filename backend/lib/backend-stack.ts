@@ -1,18 +1,22 @@
-import * as sns from '@aws-cdk/aws-sns';
-import * as subs from '@aws-cdk/aws-sns-subscriptions';
-import * as sqs from '@aws-cdk/aws-sqs';
-import * as cdk from '@aws-cdk/core';
+import * as cdk from "@aws-cdk/core";
+import * as lambda from "@aws-cdk/aws-lambda";
+import * as dynamodb from "@aws-cdk/aws-dynamodb";
 
 export class BackendStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const queue = new sqs.Queue(this, 'BackendQueue', {
-      visibilityTimeout: cdk.Duration.seconds(300)
+    const archDailyTable = new dynamodb.Table(this, "Projects", {
+      partitionKey: { name: "id", type: dynamodb.AttributeType.NUMBER },
     });
 
-    const topic = new sns.Topic(this, 'BackendTopic');
-
-    topic.addSubscription(new subs.SqsSubscription(queue));
+    const archDailyApiLambda = new lambda.Function(this, "ArchDailyApi", {
+      runtime: lambda.Runtime.NODEJS_14_X,
+      handler: "archdaily-api.handler",
+      code: lambda.Code.fromCfnParameters(),
+      environment: {
+        ARCHDAILY_TABLE_NAME: archDailyTable.tableName,
+      },
+    });
   }
 }
