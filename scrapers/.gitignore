@@ -1,0 +1,7 @@
+*.js
+!jest.config.js
+!app.js
+*.d.ts
+
+build/
+node_modules/
