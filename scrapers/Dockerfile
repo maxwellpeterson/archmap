@@ -1,19 +1,20 @@
-FROM public.ecr.aws/lambda/nodejs:14 AS build
+FROM node:14-alpine AS build
 WORKDIR /app
-RUN npm install --global yarn typescript
 COPY package.json yarn.lock tsconfig.json ./
-RUN yarn install
 COPY ./src ./src
-RUN yarn build
+RUN yarn install --frozen-lockfile && \
+    yarn build
+
+FROM node:14-alpine As modules
+WORKDIR /app
+COPY package.json yarn.lock ./
+RUN yarn install --production=true && \
+    apk add curl && \
+    curl -sf https://gobinaries.com/tj/node-prune | sh && \
+    node-prune
 
 FROM public.ecr.aws/lambda/nodejs:14
-RUN npm install --global yarn
-COPY package.json yarn.lock ./
-RUN yarn install --production=true
 COPY --from=build /app/build ./
+COPY --from=modules /app/node_modules ./node_modules
 
-# Command can be overwritten by providing a different command in the template directly.
 CMD ["archdaily.tester"]
-
-# Try with alpine base image? Would need to make some changes for AWS?
-# https://docs.aws.amazon.com/lambda/latest/dg/images-create.html
