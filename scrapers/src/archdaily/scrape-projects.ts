@@ -5,21 +5,22 @@ import {
   WriteRequest,
 } from "@aws-sdk/client-dynamodb";
 import axios from "axios";
-import { ArchDailyResponse, ArchDailyProject } from "./types";
+import { ArchdailyResponse, ArchdailyProject } from "./types";
 
 const scrapeProjects = async (): Promise<void> => {
-  const archDailyProjects: ArchDailyProject[] = await fetchArchDailyProjects(1);
+  const archDailyProjects: ArchdailyProject[] = await fetchArchDailyProjects(1);
+  console.log(`Found ${archDailyProjects.length} projects:`, archDailyProjects);
 
   if (archDailyProjects.length > 0) {
-    writeArchDailyProjects(archDailyProjects);
+    await writeArchDailyProjects(archDailyProjects);
   }
 };
 
 const fetchArchDailyProjects = async (
   archDailyPageNumber: number
-): Promise<ArchDailyProject[]> => {
+): Promise<ArchdailyProject[]> => {
   try {
-    const response = await axios.get<ArchDailyResponse>(
+    const response = await axios.get<ArchdailyResponse>(
       `https://www.archdaily.com/search/api/v1/us/projects?page=${archDailyPageNumber}`
     );
     return response.data.results;
@@ -30,7 +31,7 @@ const fetchArchDailyProjects = async (
 };
 
 const writeArchDailyProjects = async (
-  archDailyProjects: ArchDailyProject[]
+  archDailyProjects: ArchdailyProject[]
 ): Promise<void> => {
   const tableName: string = process.env.ARCHDAILY_TABLE_NAME || "";
 
@@ -58,10 +59,21 @@ const writeArchDailyProjects = async (
  * https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_AttributeValue.html
  *
  * This is why `KEY` is labeled as an "N" type even though `document_id` is a
- * string.
+ * string. `YEAR` is treated in the same way.
+ *
+ * Another important note: "When you add an item, the primary key attributes are
+ * the only required attributes. Attribute values cannot be null. Empty String
+ * and Binary attribute values are allowed. Attribute values of type String and
+ * Binary must have a length greater than zero if the attribute is used as a key
+ * attribute for a table or index. Set type attributes cannot be empty."
+ *
+ * https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html
+ *
+ * To prevent write requests from being rejected, undefined and empty attributes
+ * need to be dropped from the item object.
  */
 const formatArchDailyProjects = (
-  archDailyProjects: ArchDailyProject[]
+  archDailyProjects: ArchdailyProject[]
 ): WriteRequest[] => {
   return archDailyProjects.map(
     ({ document_id, title, offices, year, url }) => ({
@@ -71,7 +83,7 @@ const formatArchDailyProjects = (
           TITLE: { S: title },
           ARCHITECTS: { SS: offices.map(({ name }) => name) },
           YEAR: { N: year },
-          url: { S: url },
+          URL: { S: url },
         },
       },
     })

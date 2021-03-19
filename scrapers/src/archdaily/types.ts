@@ -1,18 +1,18 @@
-interface ArchDailyResponse {
-  results: ArchDailyProject[];
+interface ArchdailyResponse {
+  results: ArchdailyProject[];
 }
 
-interface ArchDailyProject {
+interface ArchdailyProject {
   document_id: string;
   title: string;
-  offices: ArchDailyOffice[];
+  offices: ArchdailyOffice[];
   year: string;
   url: string;
 }
 
-interface ArchDailyOffice {
+interface ArchdailyOffice {
   name: string;
   url: string;
 }
 
-export { ArchDailyResponse, ArchDailyProject, ArchDailyOffice };
+export { ArchdailyResponse, ArchdailyProject, ArchdailyOffice };
