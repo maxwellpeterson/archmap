@@ -7,32 +7,39 @@ export class InfrastructureStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // const archDailyProjects = new dynamodb.Table(this, "ArchDailyProjects", {
-    //   partitionKey: { name: "id", type: dynamodb.AttributeType.NUMBER },
-    // });
-
-    // const archDailyScraper = new lambda.Function(this, "ArchDailyScraper", {
-    //   runtime: lambda.Runtime.NODEJS_14_X,
-    //   handler: "archdaily-api.handler",
-    //   code: lambda.Code.fromCfnParameters(),
-    //   environment: {
-    //     ARCHDAILY_TABLE_NAME: archDailyProjects.tableName,
-    //   },
-    // });
-
-    const testFunctionImage = ecr.Repository.fromRepositoryName(
+    // Set table to be deleted on resource destruction...
+    const archdailyProjectsTable = new dynamodb.Table(
       this,
-      "TestFunctionImage",
+      "ArchdailyProjects",
+      {
+        partitionKey: { name: "id", type: dynamodb.AttributeType.NUMBER },
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+      }
+    );
+
+    const archmapScrapersRepository = ecr.Repository.fromRepositoryName(
+      this,
+      "ArchmapScrapers",
       "archmap-scrapers"
     );
 
-    const testFunction = new lambda.Function(this, "TestFunction", {
-      code: lambda.Code.fromEcrImage(testFunctionImage),
-      handler: lambda.Handler.FROM_IMAGE,
-      runtime: lambda.Runtime.FROM_IMAGE,
-      environment: {
-        TEST_MESSAGE: "Oopity",
-      },
-    });
+    const scrapeArchdailyProjectsFunction = new lambda.Function(
+      this,
+      "ScrapeArchdailyProjects",
+      {
+        code: lambda.Code.fromEcrImage(archmapScrapersRepository, {
+          cmd: ["archdaily.scrapeProjects"],
+          tag: "latest",
+        }),
+        handler: lambda.Handler.FROM_IMAGE,
+        runtime: lambda.Runtime.FROM_IMAGE,
+        environment: {
+          ARCHDAILY_TABLE_NAME: archdailyProjectsTable.tableName,
+        },
+      }
+    );
+
+    // Does this need read an write access? Or just write?
+    archdailyProjectsTable.grantReadWriteData(scrapeArchdailyProjectsFunction);
   }
 }
