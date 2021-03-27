@@ -6,7 +6,11 @@ import {
 import { SQSEvent, Context } from "aws-lambda";
 import axios from "axios";
 import { splitEvery } from "ramda";
-import { ArchdailyResponse, ArchdailyProject, UrlMessageBody } from "./types";
+import {
+  ArchdailyResponse,
+  ArchdailyProject,
+  UrlMessageBody,
+} from "archdaily/types";
 
 /* Unfortunately, is doesn't look like this is exported as a constant from the
  * `@aws-sdk/client-sqs` package, which might be nice.

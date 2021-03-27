@@ -1,7 +1,8 @@
 import { SQSEvent, Context } from "aws-lambda";
-import axios from "axios";
 import { JSDOM } from "jsdom";
-import { ArchdailyProject, ArchdailyProjectWithAddress } from "./types";
+import { ArchdailyProject, ArchdailyProjectWithAddress } from "archdaily/types";
+
+const ADDRESS_QUERY = ".nrd-single-map__address span";
 
 const scrapeProjectLocation = async (event: SQSEvent, context: Context) => {
   if (event.Records.length !== 1) {
@@ -17,22 +18,27 @@ const scrapeProjectLocation = async (event: SQSEvent, context: Context) => {
     return;
   }
 
-  const projectAddress = fetchProjectAddress(project.url);
+  const projectAddress = await fetchProjectAddress(project.url);
 
   const projectWithAddress: ArchdailyProjectWithAddress = {
     ...project,
     address: projectAddress,
   };
 
-  // Push updated project into new queue
+  // Check if address exists:
+  //   If exists, send to geocoding API queue
+  //   Else, send to find place API queue
 };
 
-const fetchProjectAddress = async (url: string): string | null => {
+const fetchProjectAddress = async (url: string): Promise<string | null> => {
   try {
-    const response = await axios.get<string>(url);
-    const document = new JSDOM(response.data);
-    // Find CSS selector from old project
-  } catch (error) {}
+    const dom = await JSDOM.fromURL(url);
+    return (
+      dom.window.document.querySelector(ADDRESS_QUERY)?.textContent || null
+    );
+  } catch (error) {
+    return null;
+  }
 };
 
 // Fetch project page and parse out address string
